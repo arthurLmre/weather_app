@@ -39,11 +39,13 @@ final class DioApiClient implements ApiClient {
   Future<Map<String, dynamic>> get(
     String url, {
     Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
   }) async {
     try {
       final response = await _dio.get<Object?>(
         url,
         queryParameters: queryParameters,
+        cancelToken: cancelToken,
       );
 
       final data = response.data;
