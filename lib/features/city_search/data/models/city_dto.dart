@@ -22,6 +22,19 @@ abstract class CityDto with _$CityDto {
   factory CityDto.fromJson(Map<String, dynamic> json) =>
       _$CityDtoFromJson(json);
 
+  factory CityDto.fromDomain(City city) {
+    return CityDto(
+      id: city.id,
+      name: city.name,
+      latitude: city.latitude,
+      longitude: city.longitude,
+      country: city.country,
+      region: city.region,
+      countryCode: city.countryCode,
+      timezone: city.timezone,
+    );
+  }
+
   City toDomain() {
     return City(
       id: id,

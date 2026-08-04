@@ -21,14 +21,15 @@ class CitySearchCubit extends Cubit<CitySearchState> {
   Timer? _debounceTimer;
   CancelToken? _cancelToken;
 
-  void onQueryChanged(String query) {
+  void onQueryChanged(String query) async {
     _debounceTimer?.cancel();
 
     final normalizedQuery = query.trim();
 
     if (normalizedQuery.length < 3) {
       _cancelCurrentRequest();
-      emit(const CitySearchInitial());
+      await loadHistory();
+
       return;
     }
 
@@ -115,5 +116,50 @@ class CitySearchCubit extends Cubit<CitySearchState> {
   Future<void> close() {
     _debounceTimer?.cancel();
     return super.close();
+  }
+
+  Future<void> loadHistory() async {
+    try {
+      final history = await _repository.getSearchHistory();
+
+      if (history.isEmpty) {
+        emit(const CitySearchInitial());
+        return;
+      }
+
+      emit(CitySearchHistory(history));
+    } catch (_) {
+      emit(const CitySearchInitial());
+    }
+  }
+
+  Future<void> removeCityFromHistory(City city) async {
+    await _repository.removeCityFromHistory(city);
+
+    final currentState = state;
+
+    if (currentState is! CitySearchHistory) {
+      return;
+    }
+
+    final updatedHistory = currentState.cities
+        .where((savedCity) => savedCity.id != city.id)
+        .toList();
+
+    if (updatedHistory.isEmpty) {
+      emit(const CitySearchInitial());
+      return;
+    }
+
+    emit(CitySearchHistory(updatedHistory));
+  }
+
+  Future<void> selectCity(City city) async {
+    await _repository.addCityToHistory(city);
+  }
+
+  Future<void> clearHistory() async {
+    await _repository.clearSearchHistory();
+    emit(const CitySearchInitial());
   }
 }
