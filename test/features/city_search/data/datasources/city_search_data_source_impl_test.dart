@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:weather_app/core/network/api_client.dart';
 import 'package:weather_app/core/network/api_exception.dart';
 import 'package:weather_app/features/city_search/data/data_sources/city_search_data_source_impl.dart';
-import 'package:weather_app/features/city_search/data/data_sources/city_search_end_points.dart';
+import 'package:weather_app/features/city_search/data/data_sources/endpoints/city_search_end_points.dart';
 
 final class MockApiClient extends Mock implements ApiClient {}
 

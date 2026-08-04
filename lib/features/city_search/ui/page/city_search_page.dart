@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:weather_app/core/router/app_routes.dart';
 import 'package:weather_app/features/city_search/data/entities/city.dart';
 import 'package:weather_app/features/city_search/ui/cubit/city_search_cubit.dart';
 import 'package:weather_app/features/city_search/ui/page/components/initial_content.dart';
@@ -92,6 +94,6 @@ class CitySearchPage extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    // TODO Go to city_detail
+    context.push(AppRoutes.cityDetails, extra: city);
   }
 }

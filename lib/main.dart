@@ -4,6 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_app/core/network/dio_api_client.dart';
 import 'package:weather_app/core/router/app_router.dart';
 import 'package:weather_app/core/theme/app_theme.dart';
+import 'package:weather_app/features/city_details/data/datasources/weather_data_source_impl.dart';
+import 'package:weather_app/features/city_details/data/repository/weather_repository.dart';
+import 'package:weather_app/features/city_details/data/repository/weather_repository_impl.dart';
+import 'package:weather_app/features/city_details/ui/cubit/city_details_cubit.dart';
 import 'package:weather_app/features/city_search/data/data_sources/city_search_data_source_impl.dart';
 import 'package:weather_app/features/city_search/data/data_sources/history/search_history_local_data_source_impl.dart';
 import 'package:weather_app/features/city_search/data/repository/city_search_repository.dart';
@@ -20,6 +24,9 @@ void main() async {
     citySearchDataSource: CitySearchDataSourceImpl(apiClient: apiClient),
     historyLocalDataSource: SearchHistoryLocalDataSourceImpl(sharedPreferences),
   );
+  final weatherRepository = WeatherRepositoryImpl(
+    weatherDataSource: WeatherDataSourceImpl(apiClient: apiClient),
+  );
 
   runApp(
     MultiRepositoryProvider(
@@ -27,6 +34,7 @@ void main() async {
         RepositoryProvider<CitySearchRepository>.value(
           value: citySearchRepository,
         ),
+        RepositoryProvider<WeatherRepository>.value(value: weatherRepository),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -34,6 +42,11 @@ void main() async {
             create: (context) => CitySearchCubit(
               repository: context.read<CitySearchRepository>(),
             )..loadHistory(),
+          ),
+          BlocProvider(
+            create: (context) => CityDetailsCubit(
+              weatherRepository: context.read<WeatherRepository>(),
+            ),
           ),
         ],
         child: const MyApp(),
