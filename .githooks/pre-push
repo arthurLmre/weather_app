@@ -6,6 +6,6 @@ cd "$(git rev-parse --show-toplevel)"
 
 echo "🚦 Vérifications avant push..."
 
-./tool/check.sh
+./tools/check.sh
 
 echo "✅ Push autorisé."
