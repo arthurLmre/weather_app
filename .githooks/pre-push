@@ -11,4 +11,4 @@ echo "🚦 Vérifications avant push..."
 
 ./tools/check.sh
 
-echo "✅ Push autorisé."
+echo "✅ Push autorisé.">&2
