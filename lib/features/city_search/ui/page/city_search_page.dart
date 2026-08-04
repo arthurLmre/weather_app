@@ -20,8 +20,9 @@ class CitySearchPage extends StatelessWidget {
                 prefixIcon: Icon(Icons.search),
               ),
               onSubmitted: (query) {
-                context.read<CitySearchCubit>().searchCities(query);
+                context.read<CitySearchCubit>().searchImmediately(query);
               },
+              onChanged: context.read<CitySearchCubit>().onQueryChanged,
             ),
             const SizedBox(height: 24),
             Expanded(

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:weather_app/core/network/api_client.dart';
 import 'package:weather_app/core/network/api_exception.dart';
 import 'package:weather_app/features/city_search/data/data_sources/city_search_data_source.dart';
@@ -10,7 +11,10 @@ final class CitySearchDataSourceImpl implements CitySearchDataSource {
   final ApiClient _apiClient;
 
   @override
-  Future<List<CityDto>> searchCities(String query) async {
+  Future<List<CityDto>> searchCities(
+    String query,
+    CancelToken? cancelToken,
+  ) async {
     final normalizedQuery = query.trim();
 
     if (normalizedQuery.length < 2) {
@@ -25,6 +29,7 @@ final class CitySearchDataSourceImpl implements CitySearchDataSource {
         'language': 'fr',
         'format': 'json',
       },
+      cancelToken: cancelToken,
     );
 
     final results = json['results'];
