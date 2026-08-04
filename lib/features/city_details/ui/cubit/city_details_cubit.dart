@@ -4,7 +4,7 @@ import 'package:weather_app/features/city_details/data/repository/weather_reposi
 
 part 'city_details_state.dart';
 
-final class CityDetailsCubit extends Cubit<CityDetailsState> {
+class CityDetailsCubit extends Cubit<CityDetailsState> {
   CityDetailsCubit({required this._weatherRepository})
     : super(const CityDetailsInitial());
 
