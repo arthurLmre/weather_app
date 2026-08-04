@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app/features/city_details/ui/cubit/city_details_cubit.dart';
+import 'package:weather_app/features/city_details/ui/page/components/activities/activity_selector.dart';
 import 'package:weather_app/features/city_details/ui/page/components/daily_weather_tile.dart';
 import 'package:weather_app/features/city_details/ui/page/components/hourly_weather_card.dart';
 import 'package:weather_app/features/city_search/data/entities/city.dart';
@@ -70,6 +71,37 @@ class CityDetailsView extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  // Nouvelle section
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                    sliver: SliverToBoxAdapter(
+                      child: Text(
+                        'Activité extérieure',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverToBoxAdapter(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: ActivitySelector(
+                            selectedActivity: state.selectedActivity,
+                            onActivitySelected: (activity) {
+                              context.read<CityDetailsCubit>().selectActivity(
+                                activity,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
                     sliver: SliverToBoxAdapter(
@@ -87,6 +119,7 @@ class CityDetailsView extends StatelessWidget {
                       itemBuilder: (context, index) {
                         return DailyWeatherTile(
                           weather: forecast.days[index],
+                          recommendation: state.recommendations[index],
                           isToday: index == 0,
                         );
                       },

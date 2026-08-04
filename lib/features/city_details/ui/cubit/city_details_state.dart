@@ -13,9 +13,27 @@ final class CityDetailsLoading extends CityDetailsState {
 }
 
 final class CityDetailsSuccess extends CityDetailsState {
-  const CityDetailsSuccess({required this.forecast});
+  const CityDetailsSuccess({
+    required this.forecast,
+    required this.selectedActivity,
+    required this.recommendations,
+  });
 
   final WeatherForecast forecast;
+  final ActivityEnum selectedActivity;
+  final List<ActivityRecommendationResult> recommendations;
+
+  CityDetailsSuccess copyWith({
+    WeatherForecast? forecast,
+    ActivityEnum? selectedActivity,
+    List<ActivityRecommendationResult>? recommendations,
+  }) {
+    return CityDetailsSuccess(
+      forecast: forecast ?? this.forecast,
+      selectedActivity: selectedActivity ?? this.selectedActivity,
+      recommendations: recommendations ?? this.recommendations,
+    );
+  }
 }
 
 final class CityDetailsFailure extends CityDetailsState {

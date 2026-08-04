@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:weather_app/features/city_details/data/entities/activities/acitivity_recommandation_result.dart';
 import 'package:weather_app/features/city_details/data/entities/daily_weather.dart';
+import 'package:weather_app/features/city_details/ui/page/components/activities/activity_recommendation_badge.dart';
 import 'package:weather_app/features/city_details/ui/page/components/weather_conditions.dart';
 
 class DailyWeatherTile extends StatelessWidget {
   const DailyWeatherTile({
     required this.weather,
+    required this.recommendation,
     required this.isToday,
     super.key,
   });
 
   final DailyWeather weather;
+  final ActivityRecommendationResult recommendation;
   final bool isToday;
 
   @override
@@ -56,6 +60,8 @@ class DailyWeatherTile extends StatelessWidget {
                 Text('${weather.maxWindSpeed.round()} km/h'),
               ],
             ),
+            const SizedBox(height: 12),
+            ActivityRecommendationBadge(result: recommendation),
           ],
         ),
       ),

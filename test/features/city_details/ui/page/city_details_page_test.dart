@@ -2,17 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:weather_app/features/city_details/data/entities/activities/acitivity_recommandation_result.dart';
+import 'package:weather_app/features/city_details/data/entities/activities/activity_enum.dart';
 import 'package:weather_app/features/city_details/data/entities/daily_weather.dart';
 import 'package:weather_app/features/city_details/data/entities/hourly_weather.dart';
 import 'package:weather_app/features/city_details/data/entities/weather_forecast.dart';
 import 'package:weather_app/features/city_details/data/repository/weather_repository.dart';
+import 'package:weather_app/features/city_details/data/service/activity_repository.dart';
+import 'package:weather_app/features/city_details/ui/cubit/city_details_cubit.dart';
 import 'package:weather_app/features/city_details/ui/page/city_details_page.dart';
 import 'package:weather_app/features/city_search/data/entities/city.dart';
 
 final class MockWeatherRepository extends Mock implements WeatherRepository {}
 
+final class MockActivityRecommendationService extends Mock
+    implements ActivityRecommendationService {}
+
 void main() {
   late MockWeatherRepository weatherRepository;
+  late MockActivityRecommendationService activityRecommendationService;
+  late CityDetailsCubit cityDetailsCubit;
 
   const city = City(
     id: 2996944,
@@ -48,29 +57,63 @@ void main() {
     ],
   );
 
+  setUpAll(() {
+    registerFallbackValue(ActivityEnum.walking);
+  });
+
   setUp(() {
     weatherRepository = MockWeatherRepository();
+    activityRecommendationService = MockActivityRecommendationService();
+
+    cityDetailsCubit = CityDetailsCubit(
+      weatherRepository: weatherRepository,
+      recommendationService: activityRecommendationService,
+    );
+
+    when(
+      () => activityRecommendationService.evaluate(
+        activity: any(named: 'activity'),
+        minimumTemperature: any(named: 'minimumTemperature'),
+        maximumTemperature: any(named: 'maximumTemperature'),
+        precipitationProbability: any(named: 'precipitationProbability'),
+        maximumWindSpeed: any(named: 'maximumWindSpeed'),
+      ),
+    ).thenReturn(
+      const ActivityRecommendationResult(
+        recommendation: ActivityRecommendation.recommended,
+        reason: 'Conditions agréables',
+      ),
+    );
+  });
+  tearDown(() async {
+    await cityDetailsCubit.close();
   });
 
   Widget buildSubject() {
-    return RepositoryProvider<WeatherRepository>.value(
-      value: weatherRepository,
-      child: const MaterialApp(home: CityDetailsPage(city: city)),
+    return MaterialApp(
+      home: BlocProvider<CityDetailsCubit>.value(
+        value: cityDetailsCubit,
+        child: const CityDetailsPage(city: city),
+      ),
     );
   }
 
-  testWidgets('charge automatiquement les prévisions au montage', (
-    tester,
-  ) async {
+  void stubForecastSuccess() {
     when(
       () => weatherRepository.getForecast(
         latitude: any(named: 'latitude'),
         longitude: any(named: 'longitude'),
       ),
     ).thenAnswer((_) async => forecast);
+  }
+
+  testWidgets('charge automatiquement les prévisions au montage', (
+    tester,
+  ) async {
+    stubForecastSuccess();
 
     await tester.pumpWidget(buildSubject());
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     verify(
       () => weatherRepository.getForecast(
@@ -81,33 +124,27 @@ void main() {
   });
 
   testWidgets('affiche le nom de la ville', (tester) async {
-    when(
-      () => weatherRepository.getForecast(
-        latitude: any(named: 'latitude'),
-        longitude: any(named: 'longitude'),
-      ),
-    ).thenAnswer((_) async => forecast);
+    stubForecastSuccess();
 
     await tester.pumpWidget(buildSubject());
+    await tester.pumpAndSettle();
 
     expect(find.text('Lyon'), findsOneWidget);
   });
 
   testWidgets('affiche les prévisions après le chargement', (tester) async {
-    when(
-      () => weatherRepository.getForecast(
-        latitude: any(named: 'latitude'),
-        longitude: any(named: 'longitude'),
-      ),
-    ).thenAnswer((_) async => forecast);
+    stubForecastSuccess();
 
     await tester.pumpWidget(buildSubject());
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('Prochaines 24 heures'), findsOneWidget);
+    expect(find.text('Activité extérieure'), findsOneWidget);
     expect(find.text('Prévisions sur 7 jours'), findsOneWidget);
     expect(find.text('Maintenant'), findsOneWidget);
     expect(find.text("Aujourd'hui"), findsOneWidget);
+    expect(find.text('Recommandée'), findsOneWidget);
+    expect(find.text('Conditions agréables'), findsOneWidget);
   });
 
   testWidgets('affiche l’état d’erreur lorsque le repository échoue', (
@@ -121,7 +158,7 @@ void main() {
     ).thenThrow(Exception('Erreur réseau'));
 
     await tester.pumpWidget(buildSubject());
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(
       find.text('Impossible de récupérer les prévisions météo.'),

@@ -7,6 +7,7 @@ import 'package:weather_app/core/theme/app_theme.dart';
 import 'package:weather_app/features/city_details/data/datasources/weather_data_source_impl.dart';
 import 'package:weather_app/features/city_details/data/repository/weather_repository.dart';
 import 'package:weather_app/features/city_details/data/repository/weather_repository_impl.dart';
+import 'package:weather_app/features/city_details/data/service/activity_repository.dart';
 import 'package:weather_app/features/city_details/ui/cubit/city_details_cubit.dart';
 import 'package:weather_app/features/city_search/data/data_sources/city_search_data_source_impl.dart';
 import 'package:weather_app/features/city_search/data/data_sources/history/search_history_local_data_source_impl.dart';
@@ -27,7 +28,7 @@ void main() async {
   final weatherRepository = WeatherRepositoryImpl(
     weatherDataSource: WeatherDataSourceImpl(apiClient: apiClient),
   );
-
+  final activityRecommendationService = ActivityRecommendationServiceImpl();
   runApp(
     MultiRepositoryProvider(
       providers: [
@@ -35,6 +36,9 @@ void main() async {
           value: citySearchRepository,
         ),
         RepositoryProvider<WeatherRepository>.value(value: weatherRepository),
+        RepositoryProvider<ActivityRecommendationService>.value(
+          value: activityRecommendationService,
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -46,6 +50,8 @@ void main() async {
           BlocProvider(
             create: (context) => CityDetailsCubit(
               weatherRepository: context.read<WeatherRepository>(),
+              recommendationService: context
+                  .read<ActivityRecommendationService>(),
             ),
           ),
         ],
