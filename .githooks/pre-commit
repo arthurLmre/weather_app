@@ -12,7 +12,4 @@ fvm dart format \
   --set-exit-if-changed \
   lib test
 
-echo "🔎 Analyse du projet..."
-fvm flutter analyze
-
 echo "✅ Commit autorisé."

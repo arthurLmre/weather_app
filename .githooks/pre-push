@@ -4,6 +4,9 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
+echo "🔎 Analyse du projet..."
+fvm flutter analyze
+
 echo "🚦 Vérifications avant push..."
 
 ./tools/check.sh
