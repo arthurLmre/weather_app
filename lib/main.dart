@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_app/core/network/dio_api_client.dart';
 import 'package:weather_app/core/router/app_router.dart';
 import 'package:weather_app/core/theme/app_theme.dart';
 import 'package:weather_app/features/city_search/data/data_sources/city_search_data_source_impl.dart';
+import 'package:weather_app/features/city_search/data/data_sources/history/search_history_local_data_source_impl.dart';
 import 'package:weather_app/features/city_search/data/repository/city_search_repository.dart';
 import 'package:weather_app/features/city_search/data/repository/city_search_repository_impl.dart';
 import 'package:weather_app/features/city_search/ui/cubit/city_search_cubit.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   final apiClient = DioApiClient();
+  final sharedPreferences = await SharedPreferences.getInstance();
 
   final citySearchRepository = CitySearchRepositoryImpl(
-    dataSource: CitySearchDataSourceImpl(apiClient: apiClient),
+    citySearchDataSource: CitySearchDataSourceImpl(apiClient: apiClient),
+    historyLocalDataSource: SearchHistoryLocalDataSourceImpl(sharedPreferences),
   );
 
   runApp(
@@ -27,7 +33,7 @@ void main() {
           BlocProvider(
             create: (context) => CitySearchCubit(
               repository: context.read<CitySearchRepository>(),
-            ),
+            )..loadHistory(),
           ),
         ],
         child: const MyApp(),

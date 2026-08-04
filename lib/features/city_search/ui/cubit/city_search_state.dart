@@ -11,6 +11,15 @@ final class CitySearchInitial extends CitySearchState {
   const CitySearchInitial();
 }
 
+final class CitySearchHistory extends CitySearchState {
+  const CitySearchHistory(this.cities);
+
+  final List<City> cities;
+
+  @override
+  List<Object?> get props => [cities];
+}
+
 final class CitySearchLoading extends CitySearchState {
   const CitySearchLoading();
 }

@@ -26,12 +26,12 @@ void main() {
     );
   }
 
-  testWidgets('shows helper text in initial state', (tester) async {
+  testWidgets('shows helper content in initial state', (tester) async {
     when(() => cubit.state).thenReturn(const CitySearchInitial());
 
     await tester.pumpWidget(buildPage());
 
-    expect(find.text('Saisis au moins 3 caractères.'), findsOneWidget);
+    expect(find.textContaining('Saisis au moins 3 caractères'), findsOneWidget);
   });
 
   testWidgets('shows loading indicator in loading state', (tester) async {
@@ -63,6 +63,7 @@ void main() {
   testWidgets('forwards submitted query to the cubit', (tester) async {
     when(() => cubit.state).thenReturn(const CitySearchInitial());
 
+    when(() => cubit.onQueryChanged(any())).thenAnswer((_) async {});
     when(() => cubit.searchImmediately(any())).thenAnswer((_) async {});
 
     await tester.pumpWidget(buildPage());
@@ -71,6 +72,7 @@ void main() {
 
     await tester.testTextInput.receiveAction(TextInputAction.search);
 
+    verify(() => cubit.onQueryChanged('Lyon')).called(1);
     verify(() => cubit.searchImmediately('Lyon')).called(1);
   });
 }

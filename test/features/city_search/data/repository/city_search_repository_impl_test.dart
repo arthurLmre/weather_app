@@ -3,20 +3,29 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:weather_app/core/network/api_exception.dart';
 import 'package:weather_app/features/city_search/data/data_sources/city_search_data_source.dart';
+import 'package:weather_app/features/city_search/data/data_sources/history/search_history_local_data_source.dart';
 import 'package:weather_app/features/city_search/data/models/city_dto.dart';
 import 'package:weather_app/features/city_search/data/repository/city_search_repository_impl.dart';
 
 final class MockCitySearchDataSource extends Mock
     implements CitySearchDataSource {}
 
+final class MockSearchHistoryLocalDataSource extends Mock
+    implements SearchHistoryLocalDataSource {}
+
 void main() {
-  late MockCitySearchDataSource dataSource;
+  late MockCitySearchDataSource citySearchDataSource;
+  late MockSearchHistoryLocalDataSource historyLocalDataSource;
   late CitySearchRepositoryImpl repository;
 
   setUp(() {
-    dataSource = MockCitySearchDataSource();
+    citySearchDataSource = MockCitySearchDataSource();
+    historyLocalDataSource = MockSearchHistoryLocalDataSource();
 
-    repository = CitySearchRepositoryImpl(dataSource: dataSource);
+    repository = CitySearchRepositoryImpl(
+      citySearchDataSource: citySearchDataSource,
+      historyLocalDataSource: historyLocalDataSource,
+    );
   });
 
   test('converts CityDto into City', () async {
@@ -32,7 +41,7 @@ void main() {
     final cancelToken = CancelToken();
 
     when(
-      () => dataSource.searchCities('Lyon', cancelToken: cancelToken),
+      () => citySearchDataSource.searchCities('Lyon', cancelToken: cancelToken),
     ).thenAnswer((_) async => const [dto]);
 
     final result = await repository.searchCities(
@@ -45,7 +54,7 @@ void main() {
     expect(result.first.region, 'Auvergne-Rhône-Alpes');
 
     verify(
-      () => dataSource.searchCities('Lyon', cancelToken: cancelToken),
+      () => citySearchDataSource.searchCities('Lyon', cancelToken: cancelToken),
     ).called(1);
   });
 
@@ -58,7 +67,7 @@ void main() {
     );
 
     when(
-      () => dataSource.searchCities('Lyon', cancelToken: cancelToken),
+      () => citySearchDataSource.searchCities('Lyon', cancelToken: cancelToken),
     ).thenThrow(exception);
 
     expect(
