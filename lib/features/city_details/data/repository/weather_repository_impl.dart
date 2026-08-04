@@ -3,16 +3,16 @@ import 'package:weather_app/features/city_details/data/entities/weather_forecast
 import 'package:weather_app/features/city_details/data/repository/weather_repository.dart';
 
 final class WeatherRepositoryImpl implements WeatherRepository {
-  const WeatherRepositoryImpl({required this._weatherDataSource});
+  const WeatherRepositoryImpl({required this.weatherDataSource});
 
-  final WeatherDataSource _weatherDataSource;
+  final WeatherDataSource weatherDataSource;
 
   @override
   Future<WeatherForecast> getForecast({
     required double latitude,
     required double longitude,
   }) async {
-    final dto = await _weatherDataSource.getForecast(
+    final dto = await weatherDataSource.getForecast(
       latitude: latitude,
       longitude: longitude,
     );

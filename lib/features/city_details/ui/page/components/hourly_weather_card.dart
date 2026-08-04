@@ -22,6 +22,7 @@ class HourlyWeatherCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 isCurrent ? 'Maintenant' : hour,
@@ -37,6 +38,7 @@ class HourlyWeatherCard extends StatelessWidget {
               Text(
                 'Ressenti ${weather.apparentTemperature.round()}°',
                 style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
               ),
               const Spacer(),
               _Metric(
