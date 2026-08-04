@@ -10,11 +10,14 @@ import 'package:weather_app/features/city_search/data/repository/city_search_rep
 part 'city_search_state.dart';
 
 class CitySearchCubit extends Cubit<CitySearchState> {
-  CitySearchCubit({required this._repository})
-    : super(const CitySearchInitial());
+  CitySearchCubit({
+    required this._repository,
+    this._debounceDuration = const Duration(milliseconds: 500),
+  }) : super(const CitySearchInitial());
 
   final CitySearchRepository _repository;
 
+  final Duration _debounceDuration;
   Timer? _debounceTimer;
   CancelToken? _cancelToken;
 
@@ -30,7 +33,7 @@ class CitySearchCubit extends Cubit<CitySearchState> {
     }
 
     _debounceTimer = Timer(
-      const Duration(milliseconds: 500),
+      _debounceDuration,
       () => _performSearch(normalizedQuery),
     );
   }

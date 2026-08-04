@@ -12,9 +12,9 @@ final class CitySearchDataSourceImpl implements CitySearchDataSource {
 
   @override
   Future<List<CityDto>> searchCities(
-    String query,
+    String query, {
     CancelToken? cancelToken,
-  ) async {
+  }) async {
     final normalizedQuery = query.trim();
 
     if (normalizedQuery.length < 2) {

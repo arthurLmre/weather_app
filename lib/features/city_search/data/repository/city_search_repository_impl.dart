@@ -13,7 +13,10 @@ final class CitySearchRepositoryImpl implements CitySearchRepository {
     String query, {
     CancelToken? cancelToken,
   }) async {
-    final cityDtos = await _dataSource.searchCities(query, cancelToken);
+    final cityDtos = await _dataSource.searchCities(
+      query,
+      cancelToken: cancelToken,
+    );
 
     return cityDtos
         .map((cityDto) => cityDto.toDomain())
