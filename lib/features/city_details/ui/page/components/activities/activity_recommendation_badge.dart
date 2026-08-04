@@ -19,6 +19,7 @@ class ActivityRecommendationBadge extends StatelessWidget {
 
     return Semantics(
       label: '${result.recommendation.label}. ${result.reason}',
+      excludeSemantics: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: backgroundColor,
