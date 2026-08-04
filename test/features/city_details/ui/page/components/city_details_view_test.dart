@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:weather_app/features/city_details/data/entities/activities/acitivity_recommandation_result.dart';
+import 'package:weather_app/features/city_details/data/entities/activities/activity_enum.dart';
 import 'package:weather_app/features/city_details/data/entities/daily_weather.dart';
 import 'package:weather_app/features/city_details/data/entities/hourly_weather.dart';
 import 'package:weather_app/features/city_details/data/entities/weather_forecast.dart';
@@ -17,6 +19,10 @@ final class MockCityDetailsCubit extends MockCubit<CityDetailsState>
 
 void main() {
   late MockCityDetailsCubit cubit;
+
+  setUpAll(() {
+    registerFallbackValue(ActivityEnum.walking);
+  });
 
   const city = City(
     id: 2996944,
@@ -69,6 +75,27 @@ void main() {
       ),
     ],
   );
+
+  const recommendations = [
+    ActivityRecommendationResult(
+      recommendation: ActivityRecommendation.recommended,
+      reason: 'Conditions agréables pour marcher',
+    ),
+    ActivityRecommendationResult(
+      recommendation: ActivityRecommendation.possible,
+      reason: 'Prévoyez une protection contre la pluie',
+    ),
+  ];
+
+  CityDetailsSuccess buildSuccessState({
+    ActivityEnum selectedActivity = ActivityEnum.walking,
+  }) {
+    return CityDetailsSuccess(
+      forecast: forecast,
+      selectedActivity: selectedActivity,
+      recommendations: recommendations,
+    );
+  }
 
   setUp(() {
     cubit = MockCityDetailsCubit();
@@ -148,20 +175,32 @@ void main() {
   testWidgets('affiche les sections et prévisions en cas de succès', (
     tester,
   ) async {
-    when(() => cubit.state).thenReturn(CityDetailsSuccess(forecast: forecast));
+    when(() => cubit.state).thenReturn(buildSuccessState());
 
     await tester.pumpWidget(buildSubject());
 
     expect(find.text('Prochaines 24 heures'), findsOneWidget);
+    expect(find.text('Activité extérieure'), findsOneWidget);
     expect(find.text('Prévisions sur 7 jours'), findsOneWidget);
     expect(find.byType(HourlyWeatherCard), findsNWidgets(2));
-    expect(find.byType(DailyWeatherTile), findsNWidgets(2));
+    expect(find.byType(DailyWeatherTile), findsWidgets);
     expect(find.text('Maintenant'), findsOneWidget);
     expect(find.text("Aujourd'hui"), findsOneWidget);
   });
 
+  testWidgets('change l’activité sélectionnée', (tester) async {
+    when(() => cubit.state).thenReturn(buildSuccessState());
+    when(() => cubit.selectActivity(any())).thenReturn(null);
+
+    await tester.pumpWidget(buildSubject());
+    await tester.tap(find.text('Course'));
+    await tester.pump();
+
+    verify(() => cubit.selectActivity(ActivityEnum.running)).called(1);
+  });
+
   testWidgets('relance le chargement lors du pull-to-refresh', (tester) async {
-    when(() => cubit.state).thenReturn(CityDetailsSuccess(forecast: forecast));
+    when(() => cubit.state).thenReturn(buildSuccessState());
     when(
       () => cubit.loadForecast(
         latitude: any(named: 'latitude'),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:weather_app/features/city_details/data/entities/activities/acitivity_recommandation_result.dart';
+import 'package:weather_app/features/city_details/data/entities/activities/activity_enum.dart';
 import 'package:weather_app/features/city_details/data/entities/daily_weather.dart';
 import 'package:weather_app/features/city_details/ui/page/components/daily_weather_tile.dart';
 
@@ -16,10 +18,22 @@ void main() {
     );
   }
 
-  Widget buildSubject({required DailyWeather weather, required bool isToday}) {
+  Widget buildSubject({
+    required DailyWeather weather,
+    required bool isToday,
+    ActivityRecommendationResult recommendation =
+        const ActivityRecommendationResult(
+          recommendation: ActivityRecommendation.recommended,
+          reason: 'Conditions agréables',
+        ),
+  }) {
     return MaterialApp(
       home: Scaffold(
-        body: DailyWeatherTile(weather: weather, isToday: isToday),
+        body: DailyWeatherTile(
+          weather: weather,
+          isToday: isToday,
+          recommendation: recommendation,
+        ),
       ),
     );
   }
