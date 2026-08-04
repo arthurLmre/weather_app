@@ -13,6 +13,15 @@ final class MockCitySearchCubit extends MockCubit<CitySearchState>
 void main() {
   late MockCitySearchCubit cubit;
 
+  const lyon = City(
+    id: 2996944,
+    name: 'Lyon',
+    latitude: 45.7485,
+    longitude: 4.8467,
+    country: 'France',
+    region: 'Auvergne-Rhône-Alpes',
+  );
+
   setUp(() {
     cubit = MockCitySearchCubit();
   });
@@ -74,5 +83,34 @@ void main() {
 
     verify(() => cubit.onQueryChanged('Lyon')).called(1);
     verify(() => cubit.searchImmediately('Lyon')).called(1);
+  });
+
+  testWidgets('shows recent search history', (tester) async {
+    when(() => cubit.state).thenReturn(const CitySearchHistory([lyon]));
+
+    await tester.pumpWidget(buildPage());
+
+    expect(find.text('Recherches récentes'), findsOneWidget);
+    expect(find.text('Lyon'), findsOneWidget);
+    expect(find.text('Effacer'), findsOneWidget);
+  });
+
+  testWidgets('removes a city after swipe', (tester) async {
+    when(() => cubit.state).thenReturn(const CitySearchHistory([lyon]));
+
+    when(() => cubit.removeCityFromHistory(lyon)).thenAnswer((_) async {});
+
+    await tester.pumpWidget(buildPage());
+
+    expect(find.byKey(const ValueKey(2996944)), findsOneWidget);
+
+    await tester.drag(
+      find.byKey(const ValueKey(2996944)),
+      const Offset(-500, 0),
+    );
+
+    await tester.pumpAndSettle();
+
+    verify(() => cubit.removeCityFromHistory(lyon)).called(1);
   });
 }

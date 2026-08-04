@@ -227,4 +227,47 @@ void main() {
 
     await cubit.close();
   });
+
+  blocTest<CitySearchCubit, CitySearchState>(
+    'emits history when saved cities exist',
+    build: () {
+      when(() => repository.getSearchHistory()).thenAnswer((_) async => [lyon]);
+
+      return CitySearchCubit(repository: repository);
+    },
+    act: (cubit) => cubit.loadHistory(),
+    expect: () => [
+      const CitySearchHistory([lyon]),
+    ],
+    verify: (_) {
+      verify(() => repository.getSearchHistory()).called(1);
+    },
+  );
+
+  blocTest<CitySearchCubit, CitySearchState>(
+    'emits initial when history is empty',
+    build: () {
+      when(() => repository.getSearchHistory()).thenAnswer((_) async => []);
+
+      return CitySearchCubit(repository: repository);
+    },
+    act: (cubit) => cubit.loadHistory(),
+    expect: () => [const CitySearchInitial()],
+  );
+
+  blocTest<CitySearchCubit, CitySearchState>(
+    'removes one city from history',
+    seed: () => const CitySearchHistory([lyon, paris]),
+    build: () {
+      when(
+        () => repository.removeCityFromHistory(lyon),
+      ).thenAnswer((_) async {});
+
+      return CitySearchCubit(repository: repository);
+    },
+    act: (cubit) => cubit.removeCityFromHistory(lyon),
+    expect: () => [
+      const CitySearchHistory([paris]),
+    ],
+  );
 }
