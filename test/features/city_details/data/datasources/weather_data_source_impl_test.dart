@@ -129,7 +129,7 @@ void main() {
       );
     });
 
-    test('propage une FormatException lorsque le JSON est invalide', () async {
+    test('propage une erreur lorsque le JSON est invalide', () async {
       when(
         () => apiClient.get(
           any(),
@@ -137,8 +137,8 @@ void main() {
         ),
       ).thenAnswer((_) async => <String, dynamic>{});
 
-      expect(
-        () => dataSource.getForecast(latitude: latitude, longitude: longitude),
+      await expectLater(
+        dataSource.getForecast(latitude: latitude, longitude: longitude),
         throwsA(anything),
       );
     });

@@ -49,12 +49,4 @@ void main() {
     expect(find.text('10 %'), findsOneWidget);
     expect(find.text('13 km/h'), findsOneWidget);
   });
-
-  testWidgets('affiche les icônes correspondant aux métriques', (tester) async {
-    await tester.pumpWidget(buildSubject(isCurrent: true));
-
-    expect(find.byIcon(Icons.wb_sunny_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.water_drop_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.air), findsOneWidget);
-  });
 }

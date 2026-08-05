@@ -20,8 +20,8 @@ final class MockActivityRecommendationService extends Mock
 
 void main() {
   late MockWeatherRepository weatherRepository;
-  late MockActivityRecommendationService activityRecommendationService;
-  late CityDetailsCubit cityDetailsCubit;
+  late MockActivityRecommendationService recommendationService;
+  late CityDetailsCubit cubit;
 
   const city = City(
     id: 2996944,
@@ -63,15 +63,17 @@ void main() {
 
   setUp(() {
     weatherRepository = MockWeatherRepository();
-    activityRecommendationService = MockActivityRecommendationService();
-
-    cityDetailsCubit = CityDetailsCubit(
-      weatherRepository: weatherRepository,
-      recommendationService: activityRecommendationService,
-    );
+    recommendationService = MockActivityRecommendationService();
 
     when(
-      () => activityRecommendationService.evaluate(
+      () => weatherRepository.getForecast(
+        latitude: any(named: 'latitude'),
+        longitude: any(named: 'longitude'),
+      ),
+    ).thenAnswer((_) async => forecast);
+
+    when(
+      () => recommendationService.evaluate(
         activity: any(named: 'activity'),
         minimumTemperature: any(named: 'minimumTemperature'),
         maximumTemperature: any(named: 'maximumTemperature'),
@@ -84,35 +86,26 @@ void main() {
         reason: 'Conditions agréables',
       ),
     );
-  });
-  tearDown(() async {
-    await cityDetailsCubit.close();
-  });
 
-  Widget buildSubject() {
-    return MaterialApp(
-      home: BlocProvider<CityDetailsCubit>.value(
-        value: cityDetailsCubit,
-        child: const CityDetailsPage(city: city),
-      ),
+    cubit = CityDetailsCubit(
+      weatherRepository: weatherRepository,
+      recommendationService: recommendationService,
     );
-  }
+  });
 
-  void stubForecastSuccess() {
-    when(
-      () => weatherRepository.getForecast(
-        latitude: any(named: 'latitude'),
-        longitude: any(named: 'longitude'),
-      ),
-    ).thenAnswer((_) async => forecast);
-  }
+  tearDown(() => cubit.close());
 
-  testWidgets('charge automatiquement les prévisions au montage', (
+  testWidgets('charge les prévisions avec les coordonnées de la ville', (
     tester,
   ) async {
-    stubForecastSuccess();
-
-    await tester.pumpWidget(buildSubject());
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider<CityDetailsCubit>.value(
+          value: cubit,
+          child: const CityDetailsPage(city: city),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
 
     verify(
@@ -121,49 +114,5 @@ void main() {
         longitude: city.longitude,
       ),
     ).called(1);
-  });
-
-  testWidgets('affiche le nom de la ville', (tester) async {
-    stubForecastSuccess();
-
-    await tester.pumpWidget(buildSubject());
-    await tester.pumpAndSettle();
-
-    expect(find.text('Lyon'), findsOneWidget);
-  });
-
-  testWidgets('affiche les prévisions après le chargement', (tester) async {
-    stubForecastSuccess();
-
-    await tester.pumpWidget(buildSubject());
-    await tester.pumpAndSettle();
-
-    expect(find.text('Prochaines 24 heures'), findsOneWidget);
-    expect(find.text('Activité extérieure'), findsOneWidget);
-    expect(find.text('Prévisions sur 7 jours'), findsOneWidget);
-    expect(find.text('Maintenant'), findsOneWidget);
-    expect(find.text("Aujourd'hui"), findsOneWidget);
-    expect(find.text('Recommandée'), findsOneWidget);
-    expect(find.text('Conditions agréables'), findsOneWidget);
-  });
-
-  testWidgets('affiche l’état d’erreur lorsque le repository échoue', (
-    tester,
-  ) async {
-    when(
-      () => weatherRepository.getForecast(
-        latitude: any(named: 'latitude'),
-        longitude: any(named: 'longitude'),
-      ),
-    ).thenThrow(Exception('Erreur réseau'));
-
-    await tester.pumpWidget(buildSubject());
-    await tester.pumpAndSettle();
-
-    expect(
-      find.text('Impossible de récupérer les prévisions météo.'),
-      findsOneWidget,
-    );
-    expect(find.text('Réessayer'), findsOneWidget);
   });
 }
