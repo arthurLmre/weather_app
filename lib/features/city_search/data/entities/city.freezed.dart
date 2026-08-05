@@ -11,6 +11,7 @@ part of 'city.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
+
 /// @nodoc
 mixin _$City {
 
@@ -21,6 +22,8 @@ mixin _$City {
 @pragma('vm:prefer-inline')
 $CityCopyWith<City> get copyWith => _$CityCopyWithImpl<City>(this as City, _$identity);
 
+  /// Serializes this City to a JSON map.
+  Map<String, dynamic> toJson();
 
 
 @override
@@ -28,7 +31,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is City&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.country, country) || other.country == country)&&(identical(other.region, region) || other.region == region)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.timezone, timezone) || other.timezone == timezone));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,country,region,countryCode,timezone);
 
@@ -210,11 +213,11 @@ return $default(_that.id,_that.name,_that.latitude,_that.longitude,_that.country
 }
 
 /// @nodoc
-
+@JsonSerializable()
 
 class _City implements City {
   const _City({required this.id, required this.name, required this.latitude, required this.longitude, required this.country, this.region, this.countryCode, this.timezone});
-  
+  factory _City.fromJson(Map<String, dynamic> json) => _$CityFromJson(json);
 
 @override final  int id;
 @override final  String name;
@@ -231,14 +234,17 @@ class _City implements City {
 @pragma('vm:prefer-inline')
 _$CityCopyWith<_City> get copyWith => __$CityCopyWithImpl<_City>(this, _$identity);
 
-
+@override
+Map<String, dynamic> toJson() {
+  return _$CityToJson(this, );
+}
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _City&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.country, country) || other.country == country)&&(identical(other.region, region) || other.region == region)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.timezone, timezone) || other.timezone == timezone));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,id,name,latitude,longitude,country,region,countryCode,timezone);
 

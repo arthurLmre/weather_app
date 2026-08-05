@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'city.freezed.dart';
+part 'city.g.dart';
 
 @freezed
 abstract class City with _$City {
@@ -14,4 +15,6 @@ abstract class City with _$City {
     String? countryCode,
     String? timezone,
   }) = _City;
+
+  factory City.fromJson(Map<String, dynamic> json) => _$CityFromJson(json);
 }

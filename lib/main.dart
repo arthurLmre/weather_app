@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_app/core/network/dio_api_client.dart';
 import 'package:weather_app/core/router/app_router.dart';
+import 'package:weather_app/core/storage/shared_preferences_local_storage.dart';
 import 'package:weather_app/core/theme/app_theme.dart';
 import 'package:weather_app/features/city_details/data/datasources/weather_data_source_impl.dart';
 import 'package:weather_app/features/city_details/data/repository/weather_repository.dart';
@@ -15,15 +16,16 @@ import 'package:weather_app/features/city_search/data/repository/city_search_rep
 import 'package:weather_app/features/city_search/data/repository/city_search_repository_impl.dart';
 import 'package:weather_app/features/city_search/ui/cubit/city_search_cubit.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   final apiClient = DioApiClient();
-  final sharedPreferences = await SharedPreferences.getInstance();
+  final sharedPreferences = SharedPreferencesAsync();
+  final localStorage = SharedPreferencesLocalStorage(sharedPreferences);
 
   final citySearchRepository = CitySearchRepositoryImpl(
     citySearchDataSource: CitySearchDataSourceImpl(apiClient: apiClient),
-    historyLocalDataSource: SearchHistoryLocalDataSourceImpl(sharedPreferences),
+    historyLocalDataSource: SearchHistoryLocalDataSourceImpl(localStorage),
   );
   final weatherRepository = WeatherRepositoryImpl(
     weatherDataSource: WeatherDataSourceImpl(apiClient: apiClient),
