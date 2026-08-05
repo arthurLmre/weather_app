@@ -104,7 +104,9 @@ void main() {
       const key = 'theme';
       final exception = Exception('Storage unavailable');
 
-      when(() => preferences.getString(key)).thenThrow(exception);
+      when(
+        () => preferences.getString(key),
+      ).thenAnswer((_) async => throw exception);
 
       await expectLater(localStorage.getString(key), throwsA(same(exception)));
 
