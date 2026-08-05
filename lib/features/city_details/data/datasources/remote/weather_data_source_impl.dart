@@ -1,6 +1,6 @@
 import 'package:weather_app/core/network/api_client.dart';
 import 'package:weather_app/features/city_details/data/datasources/endpoints/weather_endpoints.dart';
-import 'package:weather_app/features/city_details/data/datasources/weather_data_source.dart';
+import 'package:weather_app/features/city_details/data/datasources/remote/weather_data_source.dart';
 import 'package:weather_app/features/city_details/data/models/weather_forecast_dto.dart';
 
 final class WeatherDataSourceImpl implements WeatherDataSource {

@@ -82,6 +82,7 @@ void main() {
   void stubForecastSuccess() {
     when(
       () => weatherRepository.getForecast(
+        cityId: any(named: 'cityId'),
         latitude: any(named: 'latitude'),
         longitude: any(named: 'longitude'),
       ),
@@ -117,7 +118,8 @@ void main() {
       stubRecommendations([recommendedResult, possibleResult]);
     },
     build: buildCubit,
-    act: (cubit) => cubit.loadForecast(latitude: 45.75, longitude: 4.85),
+    act: (cubit) =>
+        cubit.loadForecast(cityId: 2996944, latitude: 45.75, longitude: 4.85),
     expect: () => [
       isA<CityDetailsLoading>(),
       isA<CityDetailsSuccess>()
@@ -134,7 +136,11 @@ void main() {
     ],
     verify: (_) {
       verify(
-        () => weatherRepository.getForecast(latitude: 45.75, longitude: 4.85),
+        () => weatherRepository.getForecast(
+          cityId: 2996944,
+          latitude: 45.75,
+          longitude: 4.85,
+        ),
       ).called(1);
 
       verify(
@@ -164,13 +170,15 @@ void main() {
     setUp: () {
       when(
         () => weatherRepository.getForecast(
+          cityId: any(named: 'cityId'),
           latitude: any(named: 'latitude'),
           longitude: any(named: 'longitude'),
         ),
       ).thenThrow(Exception('Erreur réseau'));
     },
     build: buildCubit,
-    act: (cubit) => cubit.loadForecast(latitude: 45.75, longitude: 4.85),
+    act: (cubit) =>
+        cubit.loadForecast(cityId: 2996944, latitude: 45.75, longitude: 4.85),
     expect: () => [
       isA<CityDetailsLoading>(),
       isA<CityDetailsFailure>().having(
@@ -205,7 +213,11 @@ void main() {
     },
     build: buildCubit,
     act: (cubit) async {
-      await cubit.loadForecast(latitude: 45.75, longitude: 4.85);
+      await cubit.loadForecast(
+        cityId: 2996944,
+        latitude: 45.75,
+        longitude: 4.85,
+      );
       cubit.selectActivity(ActivityEnum.running);
     },
     skip: 2,
@@ -242,7 +254,11 @@ void main() {
     },
     build: buildCubit,
     act: (cubit) async {
-      await cubit.loadForecast(latitude: 45.75, longitude: 4.85);
+      await cubit.loadForecast(
+        cityId: 2996944,
+        latitude: 45.75,
+        longitude: 4.85,
+      );
       cubit.selectActivity(ActivityEnum.walking);
     },
     skip: 2,

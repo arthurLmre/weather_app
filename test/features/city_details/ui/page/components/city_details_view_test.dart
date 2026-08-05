@@ -169,6 +169,7 @@ void main() {
     ).thenReturn(const CityDetailsFailure(message: 'Une erreur est survenue.'));
     when(
       () => cubit.loadForecast(
+        cityId: any(named: 'cityId'),
         latitude: any(named: 'latitude'),
         longitude: any(named: 'longitude'),
       ),
@@ -180,6 +181,7 @@ void main() {
 
     verify(
       () => cubit.loadForecast(
+        cityId: city.id,
         latitude: city.latitude,
         longitude: city.longitude,
       ),
@@ -217,6 +219,7 @@ void main() {
     when(() => cubit.state).thenReturn(buildSuccessState());
     when(
       () => cubit.loadForecast(
+        cityId: any(named: 'cityId'),
         latitude: any(named: 'latitude'),
         longitude: any(named: 'longitude'),
       ),
@@ -230,6 +233,7 @@ void main() {
 
     verify(
       () => cubit.loadForecast(
+        cityId: city.id,
         latitude: city.latitude,
         longitude: city.longitude,
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:weather_app/features/city_details/data/datasources/weather_data_source.dart';
+import 'package:weather_app/features/city_details/data/datasources/cache/weather_cache_data_source.dart';
+import 'package:weather_app/features/city_details/data/datasources/remote/weather_data_source.dart';
 import 'package:weather_app/features/city_details/data/models/daily_weather_dto.dart';
 import 'package:weather_app/features/city_details/data/models/hourly_weather_dto.dart';
 import 'package:weather_app/features/city_details/data/models/weather_forecast_dto.dart';
@@ -8,15 +9,27 @@ import 'package:weather_app/features/city_details/data/repository/weather_reposi
 
 class MockWeatherDataSource extends Mock implements WeatherDataSource {}
 
+class MockWeatherCacheDataSource extends Mock
+    implements WeatherCacheDataSource {}
+
 void main() {
-  late WeatherDataSource dataSource;
+  late WeatherDataSource weatherDataSource;
+  late WeatherCacheDataSource weatherCacheDataSource;
   late WeatherRepositoryImpl repository;
   late WeatherForecastDto forecastDto;
 
-  setUp(() {
-    dataSource = MockWeatherDataSource();
+  const cityId = 2996944;
+  const latitude = 46.205;
+  const longitude = 5.225;
 
-    repository = WeatherRepositoryImpl(weatherDataSource: dataSource);
+  setUp(() {
+    weatherDataSource = MockWeatherDataSource();
+    weatherCacheDataSource = MockWeatherCacheDataSource();
+
+    repository = WeatherRepositoryImpl(
+      weatherDataSource: weatherDataSource,
+      cacheDataSource: weatherCacheDataSource,
+    );
 
     forecastDto = const WeatherForecastDto(
       hourly: HourlyWeatherDto(
@@ -43,15 +56,23 @@ void main() {
   group('WeatherRepositoryImpl', () {
     test('returns converted forecast when data source succeeds', () async {
       when(
-        () => dataSource.getForecast(
+        () => weatherDataSource.getForecast(
           latitude: any(named: 'latitude'),
           longitude: any(named: 'longitude'),
         ),
       ).thenAnswer((_) async => forecastDto);
 
+      when(
+        () => weatherCacheDataSource.saveForecast(
+          cityId: cityId,
+          forecast: forecastDto,
+        ),
+      ).thenAnswer((_) async {});
+
       final result = await repository.getForecast(
-        latitude: 46.205,
-        longitude: 5.225,
+        cityId: cityId,
+        latitude: latitude,
+        longitude: longitude,
       );
 
       expect(result.hours, hasLength(1));
@@ -74,32 +95,63 @@ void main() {
       expect(result.days.first.maxWindSpeed, 15);
 
       verify(
-        () => dataSource.getForecast(latitude: 46.205, longitude: 5.225),
-      ).called(1);
-
-      verifyNoMoreInteractions(dataSource);
-    });
-
-    test('propagates exception when data source fails', () async {
-      final exception = Exception('Network error');
-
-      when(
-        () => dataSource.getForecast(
-          latitude: any(named: 'latitude'),
-          longitude: any(named: 'longitude'),
+        () => weatherDataSource.getForecast(
+          latitude: latitude,
+          longitude: longitude,
         ),
-      ).thenThrow(exception);
-
-      expect(
-        () => repository.getForecast(latitude: 46.205, longitude: 5.225),
-        throwsA(same(exception)),
-      );
+      ).called(1);
 
       verify(
-        () => dataSource.getForecast(latitude: 46.205, longitude: 5.225),
+        () => weatherCacheDataSource.saveForecast(
+          cityId: cityId,
+          forecast: forecastDto,
+        ),
       ).called(1);
 
-      verifyNoMoreInteractions(dataSource);
+      verifyNoMoreInteractions(weatherDataSource);
+      verifyNoMoreInteractions(weatherCacheDataSource);
     });
+
+    test(
+      'propagates exception when data source fails and cache is empty',
+      () async {
+        final exception = Exception('Network error');
+
+        when(
+          () => weatherDataSource.getForecast(
+            latitude: any(named: 'latitude'),
+            longitude: any(named: 'longitude'),
+          ),
+        ).thenThrow(exception);
+
+        when(
+          () =>
+              weatherCacheDataSource.getForecast(cityId: any(named: 'cityId')),
+        ).thenAnswer((_) async => null);
+
+        expect(
+          () => repository.getForecast(
+            cityId: cityId,
+            latitude: latitude,
+            longitude: longitude,
+          ),
+          throwsA(same(exception)),
+        );
+
+        verify(
+          () => weatherDataSource.getForecast(
+            latitude: latitude,
+            longitude: longitude,
+          ),
+        ).called(1);
+
+        verify(
+          () => weatherCacheDataSource.getForecast(cityId: cityId),
+        ).called(1);
+
+        verifyNoMoreInteractions(weatherDataSource);
+        verifyNoMoreInteractions(weatherCacheDataSource);
+      },
+    );
   });
 }
