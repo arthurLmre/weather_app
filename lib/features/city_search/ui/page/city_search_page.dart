@@ -9,11 +9,46 @@ import 'package:weather_app/features/city_search/ui/page/components/message_cont
 import 'package:weather_app/features/city_search/ui/page/components/search_history_sliver_list.dart';
 import 'package:weather_app/features/city_search/ui/page/components/search_results_sliver_list.dart';
 
-class CitySearchPage extends StatelessWidget {
+class CitySearchPage extends StatefulWidget {
   const CitySearchPage({super.key});
 
   @override
+  State<CitySearchPage> createState() => _CitySearchPageState();
+}
+
+class _CitySearchPageState extends State<CitySearchPage> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchTextChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController
+      ..removeListener(_onSearchTextChanged)
+      ..dispose();
+
+    super.dispose();
+  }
+
+  void _onSearchTextChanged() {
+    setState(() {});
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    FocusScope.of(context).unfocus();
+
+    context.read<CitySearchCubit>().clearSearch();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final hasSearchText = _searchController.text.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Rechercher une ville')),
       body: SafeArea(
@@ -22,10 +57,19 @@ class CitySearchPage extends StatelessWidget {
           child: Column(
             children: [
               TextField(
+                controller: _searchController,
                 textInputAction: TextInputAction.search,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Lyon, Marseille, Paris...',
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: hasSearchText
+                      ? IconButton(
+                          key: const Key('clear-search-button'),
+                          tooltip: 'Effacer la recherche',
+                          icon: const Icon(Icons.close),
+                          onPressed: _clearSearch,
+                        )
+                      : null,
                 ),
                 onSubmitted: (query) {
                   context.read<CitySearchCubit>().searchImmediately(query);
