@@ -3,15 +3,17 @@ import 'package:weather_app/features/city_search/data/entities/city.dart';
 
 class CityCard extends StatelessWidget {
   const CityCard({
-    super.key,
     required this.city,
     required this.leadingIcon,
     required this.onTap,
+    this.trailing,
+    super.key,
   });
 
   final City city;
   final IconData leadingIcon;
   final VoidCallback onTap;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +70,9 @@ class CityCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: colors.onSurfaceVariant),
+              const SizedBox(width: 8),
+              trailing ??
+                  Icon(Icons.chevron_right, color: colors.onSurfaceVariant),
             ],
           ),
         ),

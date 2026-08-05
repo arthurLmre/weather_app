@@ -13,16 +13,17 @@ import 'package:weather_app/features/city_details/ui/page/components/city_detail
 import 'package:weather_app/features/city_details/ui/page/components/daily_weather_tile.dart';
 import 'package:weather_app/features/city_details/ui/page/components/hourly_weather_card.dart';
 import 'package:weather_app/features/city_search/data/entities/city.dart';
+import 'package:weather_app/features/favorites/ui/cubit/favorites_cubit.dart';
 
 final class MockCityDetailsCubit extends MockCubit<CityDetailsState>
     implements CityDetailsCubit {}
 
+class MockFavoritesCubit extends MockCubit<FavoritesState>
+    implements FavoritesCubit {}
+
 void main() {
   late MockCityDetailsCubit cubit;
-
-  setUpAll(() {
-    registerFallbackValue(ActivityEnum.walking);
-  });
+  late MockFavoritesCubit favoritesCubit;
 
   const city = City(
     id: 2996944,
@@ -32,6 +33,11 @@ void main() {
     country: 'France',
     region: 'Auvergne-Rhône-Alpes',
   );
+
+  setUpAll(() {
+    registerFallbackValue(ActivityEnum.walking);
+    registerFallbackValue(city);
+  });
 
   final forecast = WeatherForecast(
     hours: [
@@ -99,12 +105,20 @@ void main() {
 
   setUp(() {
     cubit = MockCityDetailsCubit();
+    favoritesCubit = MockFavoritesCubit();
+
+    when(
+      () => favoritesCubit.state,
+    ).thenReturn(const FavoritesLoaded(favorites: []));
   });
 
   Widget buildSubject() {
     return MaterialApp(
-      home: BlocProvider<CityDetailsCubit>.value(
-        value: cubit,
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider<CityDetailsCubit>.value(value: cubit),
+          BlocProvider<FavoritesCubit>.value(value: favoritesCubit),
+        ],
         child: const CityDetailsView(city: city),
       ),
     );

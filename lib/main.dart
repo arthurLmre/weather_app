@@ -15,6 +15,10 @@ import 'package:weather_app/features/city_search/data/data_sources/history/searc
 import 'package:weather_app/features/city_search/data/repository/city_search_repository.dart';
 import 'package:weather_app/features/city_search/data/repository/city_search_repository_impl.dart';
 import 'package:weather_app/features/city_search/ui/cubit/city_search_cubit.dart';
+import 'package:weather_app/features/favorites/data/datasources/favorites_data_source_impl.dart';
+import 'package:weather_app/features/favorites/data/repository/favorites_repository.dart';
+import 'package:weather_app/features/favorites/data/repository/favorites_repository_impl.dart';
+import 'package:weather_app/features/favorites/ui/cubit/favorites_cubit.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +34,11 @@ void main() {
   final weatherRepository = WeatherRepositoryImpl(
     weatherDataSource: WeatherDataSourceImpl(apiClient: apiClient),
   );
+  final favoritesRepository = FavoritesRepositoryImpl(
+    localDataSource: FavoritesLocalDataSourceImpl(localStorage: localStorage),
+  );
   final activityRecommendationService = ActivityRecommendationServiceImpl();
+
   runApp(
     MultiRepositoryProvider(
       providers: [
@@ -38,6 +46,9 @@ void main() {
           value: citySearchRepository,
         ),
         RepositoryProvider<WeatherRepository>.value(value: weatherRepository),
+        RepositoryProvider<FavoritesRepository>.value(
+          value: favoritesRepository,
+        ),
         RepositoryProvider<ActivityRecommendationService>.value(
           value: activityRecommendationService,
         ),
@@ -55,6 +66,11 @@ void main() {
               recommendationService: context
                   .read<ActivityRecommendationService>(),
             ),
+          ),
+          BlocProvider(
+            create: (context) =>
+                FavoritesCubit(repository: context.read<FavoritesRepository>())
+                  ..loadFavorites(),
           ),
         ],
         child: const MyApp(),

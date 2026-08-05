@@ -1,3 +1,4 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,16 +13,21 @@ import 'package:weather_app/features/city_details/data/service/activity_reposito
 import 'package:weather_app/features/city_details/ui/cubit/city_details_cubit.dart';
 import 'package:weather_app/features/city_details/ui/page/city_details_page.dart';
 import 'package:weather_app/features/city_search/data/entities/city.dart';
+import 'package:weather_app/features/favorites/ui/cubit/favorites_cubit.dart';
 
 final class MockWeatherRepository extends Mock implements WeatherRepository {}
 
 final class MockActivityRecommendationService extends Mock
     implements ActivityRecommendationService {}
 
+final class MockFavoritesCubit extends MockCubit<FavoritesState>
+    implements FavoritesCubit {}
+
 void main() {
   late MockWeatherRepository weatherRepository;
   late MockActivityRecommendationService recommendationService;
   late CityDetailsCubit cubit;
+  late MockFavoritesCubit favoritesCubit;
 
   const city = City(
     id: 2996944,
@@ -64,6 +70,11 @@ void main() {
   setUp(() {
     weatherRepository = MockWeatherRepository();
     recommendationService = MockActivityRecommendationService();
+    favoritesCubit = MockFavoritesCubit();
+
+    when(
+      () => favoritesCubit.state,
+    ).thenReturn(const FavoritesLoaded(favorites: []));
 
     when(
       () => weatherRepository.getForecast(
@@ -100,8 +111,11 @@ void main() {
   ) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: BlocProvider<CityDetailsCubit>.value(
-          value: cubit,
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider<CityDetailsCubit>.value(value: cubit),
+            BlocProvider<FavoritesCubit>.value(value: favoritesCubit),
+          ],
           child: const CityDetailsPage(city: city),
         ),
       ),

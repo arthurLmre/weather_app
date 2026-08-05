@@ -5,6 +5,7 @@ import 'package:weather_app/features/city_details/ui/page/components/activities/
 import 'package:weather_app/features/city_details/ui/page/components/daily_weather_tile.dart';
 import 'package:weather_app/features/city_details/ui/page/components/hourly_weather_card.dart';
 import 'package:weather_app/features/city_search/data/entities/city.dart';
+import 'package:weather_app/features/favorites/ui/components/favorite_button.dart';
 
 class CityDetailsView extends StatelessWidget {
   const CityDetailsView({required this.city, super.key});
@@ -14,7 +15,10 @@ class CityDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(city.name)),
+      appBar: AppBar(
+        title: Text(city.name),
+        actions: [FavoriteButton(city: city)],
+      ),
       body: BlocBuilder<CityDetailsCubit, CityDetailsState>(
         builder: (context, state) {
           if (state is CityDetailsInitial || state is CityDetailsLoading) {
