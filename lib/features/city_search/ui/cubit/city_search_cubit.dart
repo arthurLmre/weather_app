@@ -91,6 +91,11 @@ class CitySearchCubit extends Cubit<CitySearchState> {
     }
   }
 
+  Future<void> clearSearch() async {
+    _debounceTimer?.cancel();
+    await loadHistory();
+  }
+
   String _getErrorMessage(ApiException error) {
     return switch (error.type) {
       ApiExceptionType.connection => 'Vérifie ta connexion internet.',
