@@ -30,6 +30,7 @@ class CityDetailsView extends StatelessWidget {
               message: state.message,
               onRetry: () {
                 context.read<CityDetailsCubit>().loadForecast(
+                  cityId: city.id,
                   latitude: city.latitude,
                   longitude: city.longitude,
                 );
@@ -43,6 +44,7 @@ class CityDetailsView extends StatelessWidget {
             return RefreshIndicator(
               onRefresh: () {
                 return context.read<CityDetailsCubit>().loadForecast(
+                  cityId: city.id,
                   latitude: city.latitude,
                   longitude: city.longitude,
                 );

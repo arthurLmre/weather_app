@@ -13,7 +13,11 @@ class CityDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: context.read<CityDetailsCubit>()
-        ..loadForecast(latitude: city.latitude, longitude: city.longitude),
+        ..loadForecast(
+          cityId: city.id,
+          latitude: city.latitude,
+          longitude: city.longitude,
+        ),
       child: CityDetailsView(city: city),
     );
   }

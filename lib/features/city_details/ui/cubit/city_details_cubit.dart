@@ -22,11 +22,13 @@ class CityDetailsCubit extends Cubit<CityDetailsState> {
   Future<void> loadForecast({
     required double latitude,
     required double longitude,
+    required int cityId,
   }) async {
     emit(const CityDetailsLoading());
 
     try {
       final forecast = await _weatherRepository.getForecast(
+        cityId: cityId,
         latitude: latitude,
         longitude: longitude,
       );

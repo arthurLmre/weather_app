@@ -5,7 +5,8 @@ import 'package:weather_app/core/network/dio_api_client.dart';
 import 'package:weather_app/core/router/app_router.dart';
 import 'package:weather_app/core/storage/shared_preferences_local_storage.dart';
 import 'package:weather_app/core/theme/app_theme.dart';
-import 'package:weather_app/features/city_details/data/datasources/weather_data_source_impl.dart';
+import 'package:weather_app/features/city_details/data/datasources/cache/weather_cache_data_source_impl.dart';
+import 'package:weather_app/features/city_details/data/datasources/remote/weather_data_source_impl.dart';
 import 'package:weather_app/features/city_details/data/repository/weather_repository.dart';
 import 'package:weather_app/features/city_details/data/repository/weather_repository_impl.dart';
 import 'package:weather_app/features/city_details/data/service/activity_repository.dart';
@@ -33,6 +34,7 @@ void main() {
   );
   final weatherRepository = WeatherRepositoryImpl(
     weatherDataSource: WeatherDataSourceImpl(apiClient: apiClient),
+    cacheDataSource: WeatherCacheDataSourceImpl(localStorage: localStorage),
   );
   final favoritesRepository = FavoritesRepositoryImpl(
     localDataSource: FavoritesLocalDataSourceImpl(localStorage: localStorage),

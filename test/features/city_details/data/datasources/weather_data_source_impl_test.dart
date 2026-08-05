@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:weather_app/core/network/api_client.dart';
 import 'package:weather_app/features/city_details/data/datasources/endpoints/weather_endpoints.dart';
-import 'package:weather_app/features/city_details/data/datasources/weather_data_source_impl.dart';
+import 'package:weather_app/features/city_details/data/datasources/remote/weather_data_source_impl.dart';
 
 final class MockApiClient extends Mock implements ApiClient {}
 

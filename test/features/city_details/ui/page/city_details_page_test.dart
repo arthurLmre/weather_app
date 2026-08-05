@@ -78,6 +78,7 @@ void main() {
 
     when(
       () => weatherRepository.getForecast(
+        cityId: any(named: 'cityId'),
         latitude: any(named: 'latitude'),
         longitude: any(named: 'longitude'),
       ),
@@ -124,6 +125,7 @@ void main() {
 
     verify(
       () => weatherRepository.getForecast(
+        cityId: city.id,
         latitude: city.latitude,
         longitude: city.longitude,
       ),
