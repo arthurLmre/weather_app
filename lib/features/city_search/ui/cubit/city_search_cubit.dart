@@ -161,6 +161,19 @@ class CitySearchCubit extends Cubit<CitySearchState> {
 
   Future<void> selectCity(City city) async {
     await _repository.addCityToHistory(city);
+
+    final currentState = state;
+
+    if (currentState is! CitySearchHistory) {
+      return;
+    }
+
+    final updatedHistory = [
+      city,
+      ...currentState.cities.where((savedCity) => savedCity.id != city.id),
+    ].take(10).toList();
+
+    emit(CitySearchHistory(updatedHistory));
   }
 
   Future<void> clearHistory() async {
