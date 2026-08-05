@@ -1,29 +1,29 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:weather_app/core/storage/local_storage.dart';
 import 'package:weather_app/features/city_search/data/data_sources/history/search_history_local_data_source.dart';
 import 'package:weather_app/features/city_search/data/entities/city.dart';
-import 'package:weather_app/features/city_search/data/models/city_dto.dart';
 
 final class SearchHistoryLocalDataSourceImpl
     implements SearchHistoryLocalDataSource {
-  SearchHistoryLocalDataSourceImpl(this._preferences);
+  SearchHistoryLocalDataSourceImpl(this._localStorage);
 
   static const _historyKey = 'city_search_history';
   static const _maximumHistoryLength = 10;
 
-  final SharedPreferences _preferences;
+  final LocalStorage _localStorage;
 
   @override
   Future<List<City>> getHistory() async {
-    final encodedHistory = _preferences.getStringList(_historyKey) ?? [];
+    final encodedHistory = await _localStorage.getStringList(_historyKey) ?? [];
 
     final cities = <City>[];
 
     for (final encodedCity in encodedHistory) {
       try {
         final json = jsonDecode(encodedCity) as Map<String, dynamic>;
-        cities.add(CityDto.fromJson(json).toDomain());
+
+        cities.add(City.fromJson(json));
       } on FormatException {
         // Ignore une entrée JSON invalide.
       } on TypeError {
@@ -42,15 +42,12 @@ final class SearchHistoryLocalDataSourceImpl
 
     history.insert(0, city);
 
-    final limitedHistory = history.take(_maximumHistoryLength);
+    final encodedHistory = history
+        .take(_maximumHistoryLength)
+        .map((savedCity) => jsonEncode(savedCity.toJson()))
+        .toList();
 
-    final encodedHistory = limitedHistory.map((savedCity) {
-      final dto = CityDto.fromDomain(savedCity);
-
-      return jsonEncode(dto.toJson());
-    }).toList();
-
-    await _preferences.setStringList(_historyKey, encodedHistory);
+    await _localStorage.setStringList(key: _historyKey, values: encodedHistory);
   }
 
   @override
@@ -59,17 +56,15 @@ final class SearchHistoryLocalDataSourceImpl
 
     history.removeWhere((savedCity) => savedCity.id == city.id);
 
-    final encodedHistory = history.map((savedCity) {
-      final dto = CityDto.fromDomain(savedCity);
+    final encodedHistory = history
+        .map((savedCity) => jsonEncode(savedCity.toJson()))
+        .toList();
 
-      return jsonEncode(dto.toJson());
-    }).toList();
-
-    await _preferences.setStringList(_historyKey, encodedHistory);
+    await _localStorage.setStringList(key: _historyKey, values: encodedHistory);
   }
 
   @override
   Future<void> clearHistory() {
-    return _preferences.remove(_historyKey);
+    return _localStorage.remove(_historyKey);
   }
 }
