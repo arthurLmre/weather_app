@@ -1,28 +1,48 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:weather_app/core/router/app_routes.dart';
+import 'package:weather_app/core/router/main_navigation_page.dart';
 import 'package:weather_app/features/city_details/ui/page/city_details_page.dart';
 import 'package:weather_app/features/city_search/data/entities/city.dart';
 import 'package:weather_app/features/city_search/ui/page/city_search_page.dart';
+import 'package:weather_app/features/favorites/ui/page/favorites_page.dart';
 
 abstract final class AppRouter {
   static final router = GoRouter(
-    initialLocation: AppRoutes.citySearch,
+    initialLocation: '/search',
     routes: [
-      GoRoute(
-        path: AppRoutes.citySearch,
-        builder: (context, state) => const CitySearchPage(),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainNavigationPage(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/search',
+                name: 'search',
+                builder: (context, state) {
+                  return const CitySearchPage();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/favorites',
+                name: 'favorites',
+                builder: (context, state) {
+                  return const FavoritesPage();
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
-        path: AppRoutes.cityDetails,
+        path: '/city-details',
+        name: 'cityDetails',
         builder: (context, state) {
-          final city = state.extra;
-
-          if (city is! City) {
-            return const Scaffold(
-              body: Center(child: Text('Ville introuvable')),
-            );
-          }
+          final city = state.extra! as City;
 
           return CityDetailsPage(city: city);
         },
