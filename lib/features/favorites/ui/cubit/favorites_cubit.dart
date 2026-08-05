@@ -5,7 +5,7 @@ import 'package:weather_app/features/favorites/data/repository/favorites_reposit
 
 part 'favorites_state.dart';
 
-final class FavoritesCubit extends Cubit<FavoritesState> {
+class FavoritesCubit extends Cubit<FavoritesState> {
   FavoritesCubit({required this._repository}) : super(const FavoritesInitial());
 
   final FavoritesRepository _repository;
