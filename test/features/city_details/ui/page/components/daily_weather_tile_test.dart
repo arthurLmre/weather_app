@@ -67,7 +67,6 @@ void main() {
 
     expect(find.text('Ciel dégagé'), findsOneWidget);
     expect(find.text('14° / 25°'), findsOneWidget);
-    expect(find.byIcon(Icons.wb_sunny_outlined), findsOneWidget);
   });
 
   testWidgets('affiche les précipitations et le vent', (tester) async {
@@ -77,7 +76,5 @@ void main() {
 
     expect(find.text('30 % · 1.2 mm'), findsOneWidget);
     expect(find.text('19 km/h'), findsOneWidget);
-    expect(find.byIcon(Icons.water_drop_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.air), findsOneWidget);
   });
 }

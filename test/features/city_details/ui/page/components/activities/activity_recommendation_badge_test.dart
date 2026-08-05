@@ -11,50 +11,52 @@ void main() {
     );
   }
 
-  testWidgets('affiche une recommandation favorable', (tester) async {
-    await tester.pumpWidget(
-      buildSubject(
-        const ActivityRecommendationResult(
+  final cases =
+      <
+        ({
+          ActivityRecommendation recommendation,
+          String reason,
+          String label,
+          IconData icon,
+        })
+      >[
+        (
           recommendation: ActivityRecommendation.recommended,
           reason: 'Conditions agréables',
+          label: 'Recommandée',
+          icon: Icons.check_circle_outline,
         ),
-      ),
-    );
-
-    expect(find.text('Recommandée'), findsOneWidget);
-    expect(find.text('Conditions agréables'), findsOneWidget);
-    expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
-  });
-
-  testWidgets('affiche une recommandation possible', (tester) async {
-    await tester.pumpWidget(
-      buildSubject(
-        const ActivityRecommendationResult(
+        (
           recommendation: ActivityRecommendation.possible,
           reason: 'Prévoyez une protection',
+          label: 'Possible',
+          icon: Icons.info_outline,
         ),
-      ),
-    );
-
-    expect(find.text('Possible'), findsOneWidget);
-    expect(find.text('Prévoyez une protection'), findsOneWidget);
-    expect(find.byIcon(Icons.info_outline), findsOneWidget);
-  });
-
-  testWidgets('affiche une recommandation défavorable', (tester) async {
-    await tester.pumpWidget(
-      buildSubject(
-        const ActivityRecommendationResult(
+        (
           recommendation: ActivityRecommendation.discouraged,
           reason: 'Conditions dangereuses',
+          label: 'Déconseillée',
+          icon: Icons.cancel_outlined,
         ),
-      ),
-    );
+      ];
 
-    expect(find.text('Déconseillée'), findsOneWidget);
-    expect(find.text('Conditions dangereuses'), findsOneWidget);
-    expect(find.byIcon(Icons.cancel_outlined), findsOneWidget);
-  });
+  for (final testCase in cases) {
+    testWidgets('affiche le badge ${testCase.label}', (tester) async {
+      await tester.pumpWidget(
+        buildSubject(
+          ActivityRecommendationResult(
+            recommendation: testCase.recommendation,
+            reason: testCase.reason,
+          ),
+        ),
+      );
+
+      expect(find.text(testCase.label), findsOneWidget);
+      expect(find.text(testCase.reason), findsOneWidget);
+      expect(find.byIcon(testCase.icon), findsOneWidget);
+    });
+  }
+
   testWidgets('fournit un libellé sémantique complet', (tester) async {
     final semanticsHandle = tester.ensureSemantics();
 
