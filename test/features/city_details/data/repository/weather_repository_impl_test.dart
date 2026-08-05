@@ -112,6 +112,41 @@ void main() {
       verifyNoMoreInteractions(weatherCacheDataSource);
     });
 
+    test('returns cached forecast when data source fails', () async {
+      final exception = Exception('Network error');
+
+      when(
+        () => weatherDataSource.getForecast(
+          latitude: any(named: 'latitude'),
+          longitude: any(named: 'longitude'),
+        ),
+      ).thenThrow(exception);
+
+      when(
+        () => weatherCacheDataSource.getForecast(cityId: cityId),
+      ).thenAnswer((_) async => forecastDto);
+
+      final result = await repository.getForecast(
+        cityId: cityId,
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+      expect(result, forecastDto.toEntity());
+
+      verify(
+        () => weatherDataSource.getForecast(
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      ).called(1);
+      verify(
+        () => weatherCacheDataSource.getForecast(cityId: cityId),
+      ).called(1);
+      verifyNoMoreInteractions(weatherDataSource);
+      verifyNoMoreInteractions(weatherCacheDataSource);
+    });
+
     test(
       'propagates exception when data source fails and cache is empty',
       () async {

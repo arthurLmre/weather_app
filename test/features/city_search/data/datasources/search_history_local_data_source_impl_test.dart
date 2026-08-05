@@ -56,23 +56,49 @@ void main() {
   });
 
   test('keeps only the ten most recent cities', () async {
-    for (var index = 0; index < 12; index++) {
+    for (var cityId = 0; cityId < 12; cityId++) {
       await dataSource.addCity(
         City(
-          id: index,
-          name: 'Ville $index',
-          latitude: 45 + index.toDouble(),
-          longitude: 4 + index.toDouble(),
+          id: cityId,
+          name: 'Ville $cityId',
+          latitude: 45 + cityId.toDouble(),
+          longitude: 4 + cityId.toDouble(),
           country: 'France',
         ),
       );
     }
 
-    final result = await dataSource.getHistory();
+    final history = await dataSource.getHistory();
 
-    expect(result, hasLength(10));
-    expect(result.first.id, 11);
-    expect(result.last.id, 2);
+    expect(history.map((city) => city.id), [11, 10, 9, 8, 7, 6, 5, 4, 3, 2]);
+  });
+
+  test('replace existing city to first list position', () async {
+    const paris = City(
+      id: 2988507,
+      name: 'Paris',
+      latitude: 48.8566,
+      longitude: 2.3522,
+      country: 'France',
+    );
+
+    const marseille = City(
+      id: 2995469,
+      name: 'Marseille',
+      latitude: 43.2965,
+      longitude: 5.3698,
+      country: 'France',
+    );
+
+    await dataSource.addCity(lyon);
+    await dataSource.addCity(paris);
+    await dataSource.addCity(marseille);
+
+    await dataSource.addCity(lyon);
+
+    final history = await dataSource.getHistory();
+
+    expect(history, [lyon, marseille, paris]);
   });
 }
 
