@@ -1,20 +1,12 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
-
-# Toujours exécuter le script depuis la racine du dépôt.
-cd "$(git rev-parse --show-toplevel)"
+set -e
 
 echo "🔍 Vérification du formatage..."
-fvm dart format \
-  --output=none \
-  --set-exit-if-changed \
-  lib test
+dart format --output=none --set-exit-if-changed .
 
 echo "🔎 Analyse du projet..."
-fvm flutter analyze
+flutter analyze
 
 echo "🧪 Exécution des tests..."
-fvm flutter test
-
-echo "✅ Toutes les vérifications sont passées."
+flutter test
