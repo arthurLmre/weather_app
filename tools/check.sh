@@ -3,10 +3,13 @@
 set -e
 
 echo "🔍 Vérification du formatage..."
-dart format --output=none --set-exit-if-changed
+fvm dart format \
+  --output=none \
+  --set-exit-if-changed \
+  lib test
 
 echo "🔎 Analyse du projet..."
-flutter analyze
+fvm flutter analyze
 
 echo "🧪 Exécution des tests..."
-flutter test
+fvm flutter test
