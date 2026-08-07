@@ -3,7 +3,7 @@
 set -e
 
 echo "🔍 Vérification du formatage..."
-dart format --output=none --set-exit-if-changed .
+dart format --output=none --set-exit-if-changed
 
 echo "🔎 Analyse du projet..."
 flutter analyze
